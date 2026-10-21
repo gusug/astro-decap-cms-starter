@@ -3,6 +3,12 @@ import DecapCMS from 'astro-decap-cms';
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    resolve: {
+      // Decap CMS imports Node’s `path` module in browser code, so polyfill it
+      alias: [{ find: /^path$/, replacement: 'path-browserify' }],
+    },
+  },
   integrations: [
     DecapCMS({
       config: {
