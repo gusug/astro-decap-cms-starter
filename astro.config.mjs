@@ -1,8 +1,26 @@
 import { defineConfig } from 'astro/config';
 import DecapCMS from 'astro-decap-cms';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+
+// Decap CMS imports Node’s `path` module in browser code, so swap in a
+// browser-compatible implementation for client bundles only
+const browserPath = {
+  name: 'browser-path-polyfill',
+  enforce: 'pre',
+  resolveId(id, importer, options) {
+    if (!options?.ssr && (id === 'path' || id === 'node:path')) {
+      return require.resolve('path-browserify');
+    }
+  },
+};
 
 // https://astro.build/config
 export default defineConfig({
+  vite: {
+    plugins: [browserPath],
+  },
   integrations: [
     DecapCMS({
       config: {
